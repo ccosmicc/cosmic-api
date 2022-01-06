@@ -20,9 +20,31 @@ router.post("/register", async (req, res) => {
 
     // destructuring
     const { password, ...others } = savedUser._doc;
-    res.status(201).json(others);
+    return res.status(201).json(others);
   } catch (error) {
-    res.status(500).json(error);
+    return res.status(500).json(error);
+  }
+});
+
+router.post("/login", async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.body.username });
+
+    if (!user) return res.status(401).json("Wrong credentials!");
+
+    // if user is found, check the password.
+    // decrypt the password in the db
+    const bytes = CryptoJS.AES.decrypt(user.password, process.env.PASS_SEC);
+    const decryptedPassword = bytes.toString(CryptoJS.enc.Utf8);
+
+    if (decryptedPassword !== req.body.password)
+      return res.status(401).json("Wrong password!");
+
+    // destructuring
+    const { password, ...others } = user._doc;
+    return res.status(200).json(others);
+  } catch (error) {
+    return res.status(500).json(error);
   }
 });
 
