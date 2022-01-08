@@ -47,7 +47,7 @@ router.post("/login", async (req, res) => {
     });
     // destructuring
     const { password, ...others } = user._doc;
-    return res.status(200).json({ others, accessToken });
+    return res.status(200).json({ ...others, accessToken });
   } catch (error) {
     return res.status(500).json(error);
   }
