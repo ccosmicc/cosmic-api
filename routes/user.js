@@ -29,7 +29,7 @@ router.put("/:id", verifyTokenAndAuthorization, async (req, res) => {
       },
       { new: true }
     );
-
+    //destructuring
     const { password, ...others } = updatedUser._doc;
     return res.status(200).json(others);
   } catch (error) {
@@ -53,6 +53,26 @@ router.get("/find/:id", verifyTokenAndAdmin, async (req, res) => {
     const user = await User.findById(req.params.id);
     const { password, ...others } = user._doc;
     return res.status(200).json(others);
+  } catch (error) {
+    return res.status(500).json(error);
+  }
+});
+
+// GET ALL USERS
+router.get("/", verifyTokenAndAdmin, async (req, res) => {
+  const query = req.query.new;
+  try {
+    const users = query
+      ? await User.find().sort({ _id: -1 }).limit(1)
+      : await User.find();
+
+    //users are an array of objects including password field.
+    const finalUsers = users.map((user) => {
+      const { password, ...others } = user._doc;
+      return others;
+    });
+
+    return res.status(200).json(finalUsers);
   } catch (error) {
     return res.status(500).json(error);
   }
