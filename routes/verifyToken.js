@@ -22,9 +22,20 @@ const verifyToken = (req, res, next) => {
 const verifyTokenAndAuthorization = (req, res, next) => {
   verifyToken(req, res, () => {
     // we need to check whether the token is belong to this user.
-    if (req.user.id === req.params.id) next();
+    if (req.user.id === req.params.id || req.user.isAdmin) next();
     else return res.status(403).json("You are not allowed to do that!");
   });
 };
 
-module.exports = { verifyToken, verifyTokenAndAuthorization };
+const verifyTokenAndAdmin = (req, res, next) => {
+  verifyToken(req, res, () => {
+    if (req.user.isAdmin) next();
+    else return res.status(403).json("You are not allowed to do that!");
+  });
+};
+
+module.exports = {
+  verifyToken,
+  verifyTokenAndAuthorization,
+  verifyTokenAndAdmin,
+};
